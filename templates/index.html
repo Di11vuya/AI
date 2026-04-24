@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Predictor - AI Health Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="floating-orb orb-1"></div>
+        <div class="floating-orb orb-2"></div>
+        <div class="floating-orb orb-3"></div>
+    </div>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-badge">
+                <span class="pulse"></span>
+                AI-Powered Health Tool
+            </div>
+            <h1>Diabetes Prediction</h1>
+            <p class="subtitle">
+                Advanced machine learning model to assess your diabetes risk based on key health metrics. 
+                Get instant, accurate predictions with confidence scores.
+            </p>
+            <div class="hero-features">
+                <div class="feature-item">
+                    <i class="fas fa-brain"></i>
+                    <span>Trained on real clinical datasets</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-bolt"></i>
+                    <span>Instant results in seconds</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Privacy-first, no data stored</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Card -->
+        <main class="main-card">
+            <div class="card-header">
+                <div class="card-header-icon">
+                    <i class="fas fa-heart-pulse"></i>
+                </div>
+                <div>
+                    <h2>Health Metrics</h2>
+                    <p>Enter your details below for analysis</p>
+                </div>
+            </div>
+
+            <form id="prediction-form" action="/predict" method="post">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="pregnancies">
+                            <i class="fas fa-person-pregnant"></i>
+                            Pregnancies
+                        </label>
+                        <input type="number" id="pregnancies" name="1" placeholder="0-17" min="0" max="17" step="1" required>
+                        <div class="input-hint">Number of times pregnant</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="glucose">
+                            <i class="fas fa-droplet"></i>
+                            Glucose
+                        </label>
+                        <input type="number" id="glucose" name="2" placeholder="70-200 mg/dL" min="0" max="300" step="1" required>
+                        <div class="input-hint">Plasma glucose concentration</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="bp">
+                            <i class="fas fa-stethoscope"></i>
+                            Blood Pressure
+                        </label>
+                        <input type="number" id="bp" name="3" placeholder="40-140 mmHg" min="0" max="200" step="1" required>
+                        <div class="input-hint">Diastolic blood pressure</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="skin">
+                            <i class="fas fa-hand"></i>
+                            Skin Thickness
+                        </label>
+                        <input type="number" id="skin" name="4" placeholder="0-99 mm" min="0" max="150" step="1" required>
+                        <div class="input-hint">Triceps skin fold thickness</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="insulin">
+                            <i class="fas fa-syringe"></i>
+                            Insulin
+                        </label>
+                        <input type="number" id="insulin" name="5" placeholder="0-846 μU/mL" min="0" max="1000" step="1" required>
+                        <div class="input-hint">2-Hour serum insulin</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="bmi">
+                            <i class="fas fa-weight-scale"></i>
+                            BMI
+                        </label>
+                        <input type="number" id="bmi" name="6" placeholder="18.0-67.0" min="0" max="100" step="0.1" required>
+                        <div class="input-hint">Body mass index (weight/height²)</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="dpf">
+                            <i class="fas fa-dna"></i>
+                            Diabetes Pedigree
+                        </label>
+                        <input type="number" id="dpf" name="7" placeholder="0.08-2.42" min="0" max="5" step="0.001" required>
+                        <div class="input-hint">Family history function</div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="age">
+                            <i class="fas fa-cake-candles"></i>
+                            Age
+                        </label>
+                        <input type="number" id="age" name="8" placeholder="21-81 years" min="1" max="120" step="1" required>
+                        <div class="input-hint">Your current age</div>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="submit-btn">
+                    <div class="btn-content">
+                        <div class="spinner"></div>
+                        <span class="btn-text">
+                            <i class="fas fa-wand-magic-sparkles"></i>
+                            Analyze & Predict
+                        </span>
+                    </div>
+                </button>
+            </form>
+
+            {% if prediction_text %}
+            <div id="result-card" class="result-card {% if prediction_text == 'Diabetic' %}danger{% elif prediction_text == 'Not Diabetic' %}success{% else %}error{% endif %}">
+                <div class="result-icon">
+                    {% if prediction_text == 'Diabetic' %}
+                        <i class="fas fa-triangle-exclamation"></i>
+                    {% elif prediction_text == 'Not Diabetic' %}
+                        <i class="fas fa-circle-check"></i>
+                    {% else %}
+                        <i class="fas fa-circle-info"></i>
+                    {% endif %}
+                </div>
+                <h3>{{ prediction_text }}</h3>
+                <p>
+                    {% if prediction_text == 'Diabetic' %}
+                        Our model indicates potential diabetes risk. Please consult with a healthcare professional for proper diagnosis and guidance. This is not a medical diagnosis.
+                    {% elif prediction_text == 'Not Diabetic' %}
+                        Great news! Our model suggests low diabetes risk based on your metrics. Continue maintaining a healthy lifestyle with regular check-ups.
+                    {% else %}
+                        {{ prediction_text }}
+                    {% endif %}
+                </p>
+                
+                {% if confidence is defined and confidence > 0 %}
+                <div class="confidence-meter">
+                    <div class="confidence-label">
+                        <span>Model Confidence</span>
+                        <span>{{ confidence }}%</span>
+                    </div>
+                    <div class="meter-track">
+                        <div class="meter-fill meter-fill-{% if prediction_text == 'Diabetic' %}danger{% else %}success{% endif %}" data-confidence="{{ confidence }}"></div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </main>
+    </div>
+
+    <footer class="app-footer">
+        <p>Powered by Machine Learning &bull; For informational purposes only</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
+
